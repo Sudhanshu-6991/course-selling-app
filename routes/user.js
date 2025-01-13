@@ -1,7 +1,12 @@
 const { Router } = require('express')
-
-
+const { userModel } = require('../database/db')
+const bcrypt = require('bcrypt');
+const jwt  = require('jsonwebtoken');
+const JWT_SECRET = 'IwantToJoinMicrosoftThisYear2025';
 const userRouter = Router();
+const { z } = require('zod');
+
+
 
 userRouter.post('/signin',async function(req,res){
   const email = req.body.email;
@@ -37,7 +42,8 @@ userRouter.post('/signin',async function(req,res){
 })
 
 userRouter.post('/signup',async function(req,res){
-
+    
+    
     const requiredbody = z.object({
       email : z.string().min(3).max(70).email(),
       password : z.string().min(3).max(30).regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/, 'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character'),
@@ -45,10 +51,11 @@ userRouter.post('/signup',async function(req,res){
     })
 
     const parsedbody = requiredbody.safeParse(req.body);
-  
+    
     if(!parsedbody.success){
        res.json({
-        msg : 'Invalid format'
+        msg : 'Invalid format',
+        error : parsedbody.error,
        }) 
        return; 
     }
