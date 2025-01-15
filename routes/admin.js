@@ -1,8 +1,10 @@
 //const express = require('express')
-const { Router } = require('express')
-const { adminModel } = require('../database/db');
+const { Router, json } = require('express')
+const { adminModel, courseModel } = require('../database/db');
+const { adminMiddleware } = require('../Middleware/admin');
 const jwt = require('jsonwebtoken');
-const JWT_ADMIN_SECRET = 'IloveNisha&Ireallywannamarryher';
+// const JWT_ADMIN_SECRET = 'IloveNisha&Ireallywannamarryher';
+const { JWT_ADMIN_SECRET } = require(`../config`);
 const adminRouter = Router();
 const { z } = require('zod');
 const bcrypt = require('bcrypt');
@@ -83,10 +85,54 @@ adminRouter.post('/signup',async function(req,res){
   }
 })
 
-adminRouter.post('/create_course',function(req,res){ 
+adminRouter.post('/create_course',adminMiddleware,async function(req,res){ 
+  const adminId = req.adminId;
+  const { topic, price, description } = req.body;
+  try {
+    const course = await courseModel.create({
+      topic,
+      price,
+      description,
+      creatorId:adminId
+    })
+    
+    res.json({
+      msg : "course created successfully",
+      course_id : course._id
+    })  
+  } catch (error) {
+     res.json({
+      msg : 'error found while creating the course'
+     })
+  }
+  
 })
 
-adminRouter.post('/delete_course',function(req,res){ 
+adminRouter.put('/update_course',adminMiddleware,async function(req,res){
+  const adminId = req.adminId;
+  const foundcourse = await courseModel.findOne({
+    creatorId : adminId
+  })
+  try {
+    if(foundcourse){
+      const { topic, price, description } = req.body;
+      await courseModel.updateOne({
+        topic,
+        price,
+        description,
+      })
+    }else{
+      res.json({
+        msg : `course not updated`
+      })
+    }  
+  } catch (error) {
+  res.json({
+    msg : 'something went wrong'
+  })
+  }
+  
+  
 })
 
 adminRouter.post('/add_course_content',function(req,res){

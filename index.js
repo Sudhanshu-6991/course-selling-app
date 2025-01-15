@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express  = require('express');
 // const bcrypt = require('bcrypt');
 // const jwt  = require('jsonwebtoken');
@@ -20,7 +21,7 @@ app.use("/api/v1/courses", coursesRouter);
 
 
 async function main(){
-  await mongoose.connect('mongodb+srv://sudhanshu6991:vVtBzGsTTAMTQPns@test.r3snx.mongodb.net/course-selling-app');
+  await mongoose.connect(process.env.MONGO_URL);
   app.listen(3000);
   console.log('listen to port 3000');
   

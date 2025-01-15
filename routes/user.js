@@ -2,7 +2,8 @@ const { Router } = require('express')
 const { userModel } = require('../database/db')
 const bcrypt = require('bcrypt');
 const jwt  = require('jsonwebtoken');
-const JWT_USER_SECRET = 'IwantToJoinMicrosoftThisYear2025';
+// const JWT_USER_SECRET = 'IwantToJoinMicrosoftThisYear2025';
+const  { JWT_USER_SECRET } = require('../config')
 const userRouter = Router();
 const { z } = require('zod');
 
@@ -28,7 +29,7 @@ userRouter.post('/signin',async function(req,res){
   if(decryptpassword){
    const token  = jwt.sign({
     id: user._id.toString()
-   }, JWT_SECRET);
+   }, JWT_USER_SECRET);
 
    res.json({
     token : token
