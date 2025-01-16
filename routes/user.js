@@ -1,11 +1,12 @@
 const { Router } = require('express')
-const { userModel } = require('../database/db')
+const { userModel, purchaseModel } = require('../database/db')
 const bcrypt = require('bcrypt');
 const jwt  = require('jsonwebtoken');
 // const JWT_USER_SECRET = 'IwantToJoinMicrosoftThisYear2025';
 const  { JWT_USER_SECRET } = require('../config')
 const userRouter = Router();
 const { z } = require('zod');
+const { userMiddleware } = require('../Middleware/user');
 
 
 
@@ -86,10 +87,29 @@ userRouter.post('/signup',async function(req,res){
 
 })
 
-userRouter.get('/purchases', function(ewq, res){
-    res.json({
-      msg : 'This is purchase end point'
-    })
+userRouter.get('/purchases',userMiddleware,async function(req, res){
+    userid = req.userId;
+    
+
+    try {
+      const allpurchasedcourses = await purchaseModel.find({
+        userId : userid
+      })
+      if(allpurchasedcourses){
+        res.json({
+          allpurchasedcourses
+        })
+      }else{
+        res.json({
+          mag : `Sorry no course found!!`
+        })
+      }
+    } catch (error) {
+      res.json({
+        msg : `Something went wrong!!`
+      })
+    }
+    
 })
 
 module.exports = {

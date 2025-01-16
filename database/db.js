@@ -24,8 +24,7 @@ const course = new schema({
   imageurl : String
 })
 
-const purchase = new schema({
-  topic : String,
+const purchase = new schema({   
   courseId : ObjectId,
   userId : ObjectId
 })
