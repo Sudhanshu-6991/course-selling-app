@@ -87,13 +87,14 @@ adminRouter.post('/signup',async function(req,res){
 
 adminRouter.post('/create_course',adminMiddleware,async function(req,res){ 
   const adminId = req.adminId;
-  const { topic, price, description } = req.body;
+  const { topic, price, description, imageurl } = req.body;
   try {
     const course = await courseModel.create({
       topic,
       price,
       description,
-      creatorId:adminId
+      creatorId:adminId,
+      imageurl
     })
     
     res.json({
@@ -110,16 +111,25 @@ adminRouter.post('/create_course',adminMiddleware,async function(req,res){
 
 adminRouter.put('/update_course',adminMiddleware,async function(req,res){
   const adminId = req.adminId;
+  const { topic, price, description, courseId } = req.body;
+
   const foundcourse = await courseModel.findOne({
-    creatorId : adminId
+    _id:courseId,
+    creatorId : adminId,
   })
   try {
     if(foundcourse){
-      const { topic, price, description } = req.body;
       await courseModel.updateOne({
+        _id: courseId,
+        creatorId : adminId
+      }, {
         topic,
         price,
         description,
+      })
+
+      res.json({
+        msg : `course updated`
       })
     }else{
       res.json({
@@ -135,7 +145,29 @@ adminRouter.put('/update_course',adminMiddleware,async function(req,res){
   
 })
 
-adminRouter.post('/add_course_content',function(req,res){
+adminRouter.get('/course', adminMiddleware ,async function(req,res){
+  const adminId = req.adminId;
+  const courses = await courseModel.find({
+    creatorId : adminId,
+  })
+  try {
+    if(courses){
+      res.json({
+        msg: 'All courses are fetched',
+        course : courses,
+    })
+    }else{
+      res.json({
+         msg : 'Sorry no course found!!'
+      })
+      
+    }
+  } catch (error) {
+    res.json({
+      msg : 'Something went wrong!!'
+   })
+  }
+
 })
 
 module.exports = {
